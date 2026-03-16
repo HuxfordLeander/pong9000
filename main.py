@@ -494,13 +494,12 @@ async def main():
                 last_score_gap_taunt = 3
 
         # ---------- SECRET ENDINGS ----------
-        if player_score == 3 and ai_score == 3 and not secret_ending_triggered:
+        if player_score == 2 and ai_score == 1 and not secret_ending_triggered:
             secret_ending_triggered = True
             trigger_ending([
-                "BALANCE ACHIEVED",
-                "I'm sorry, player.",
-                "This match is too balanced."
-            ], 10000)
+                "NEXT STOP: UNCERTAINTY",
+                "Please remain seated."
+            ], 7000)
             await asyncio.sleep(0)
             continue
 
@@ -509,7 +508,7 @@ async def main():
             trigger_ending([
                 "NARROW DEFEAT",
                 "History remembers 6-7"
-            ], 10000)
+            ], 7000)
             await asyncio.sleep(0)
             continue
 
@@ -518,7 +517,7 @@ async def main():
                 "SYSTEM OVERRIDE",
                 "Creator Huxford has joined the chat.",
                 "\"Stop breaking my AI.\""
-            ], 10000)
+            ], 7000)
             await asyncio.sleep(0)
             continue
 
@@ -526,7 +525,7 @@ async def main():
             trigger_ending([
                 "42",
                 "Answer to Life, Universe, Everything"
-            ], 10000, sulk_after=True)
+            ], 7000, sulk_after=True)
             await asyncio.sleep(0)
             continue
 
@@ -534,7 +533,7 @@ async def main():
             trigger_ending([
                 "SYSTEM NOTICE",
                 "Creator Huxford will review this match."
-            ], 10000, sulk_after=True)
+            ], 7000, sulk_after=True)
             await asyncio.sleep(0)
             continue
 
@@ -543,7 +542,7 @@ async def main():
             trigger_ending([
                 "AI.EXE HAS STOPPED WORKING",
                 "Incident report sent to creator: Huxford."
-            ], 10000, sulk_after=True)
+            ], 7000, sulk_after=True)
             await asyncio.sleep(0)
             continue
 
