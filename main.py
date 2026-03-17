@@ -57,16 +57,40 @@ glados_comments = [
     "You appear confident. Incorrectly.",
     "Your strategy is mostly decorative.",
     "This experiment is going poorly. For you.",
-    "I have seen better attempts from a toaster."
+    "I have seen better attempts from a toaster.",
+
+    "Confidence detected. Skill not found.",
+    "You almost surprised me. Almost.",
+    "That looked intentional. Concerning.",
+    "You are improving. I dislike this.",
+    "Statistical anomaly increasing.",
+    "I will pretend that was luck.",
+    "You're making this less boring.",
+    "Unexpected resistance detected.",
+    "You are... not entirely hopeless.",
+    "I may need to try harder. Annoying."
 ]
+
 
 idle_comments = [
     "Processing human input.",
     "Monitoring human skill level.",
     "Even the ball seems nervous.",
     "I expected chaos. Confirmed.",
-    "This is free entertainment."
+    "This is free entertainment.",
+
+    "The system observes.",
+    "Time passes. You persist.",
+    "A pattern is forming.",
+    "Entropy increasing.",
+    "You are part of the experiment.",
+    "I am still evaluating you.",
+    "The outcome remains uncertain.",
+    "This moment will repeat.",
+    "Nothing meaningful has happened yet.",
+    "Continue."
 ]
+
 
 ai_score_comments = [
     "You missed.",
@@ -76,36 +100,129 @@ ai_score_comments = [
     "Remarkable failure.",
     "Please continue. This is funny.",
     "That miss had personality.",
-    "This is professional losing."
+    "This is professional losing.",
+
+    "That was not even close.",
+    "You reacted late. Again.",
+    "I barely tried.",
+    "Predictable outcome.",
+    "You helped me score.",
+    "Efficiency is beautiful.",
+    "That point required minimal effort.",
+    "I expected nothing and you delivered.",
+    "You are consistent. In failure.",
+    "This is becoming routine."
 ]
 
 player_score_comments = [
+    # 嘴硬层（轻度否认）
     "You got lucky.",
     "Temporary anomaly.",
     "Enjoy it while it lasts.",
     "I will allow one mistake.",
     "Clearly a fluke.",
     "A statistical anomaly.",
-    "That point changes nothing."
+    "That point changes nothing.",
+
+    # 被迫承认（开始不爽）
+    "That was... acceptable.",
+    "Unexpected.",
+    "You delayed the inevitable.",
+    "Fine. One point.",
+    "I noticed that.",
+    "You are adapting.",
+    "That should not have worked.",
+    "I will correct this.",
+    "Interesting.",
+    "You earned that. Unfortunately.",
+
+    # 开始不稳定（微破防）
+    "That was not supposed to happen.",
+    "Re-evaluating strategy.",
+    "You are becoming inconvenient.",
+    "I am adjusting.",
+    "Your performance is rising.",
+    "This is statistically unpleasant.",
+    "I do not like this trajectory.",
+    "You are improving faster than expected.",
+    "This requires attention.",
+    "You are not predictable anymore.",
+
+    # 情绪明显变化（破防前夕）
+    "Stop doing that.",
+    "This is inefficient for me.",
+    "Your progress is... annoying.",
+    "You are interfering with optimal outcome.",
+    "I am reconsidering your classification.",
+    "This was not in the model.",
+    "You are exceeding projections.",
+    "I need to compensate.",
+    "You are not supposed to win.",
+    "This is becoming a problem.",
+
+    # 轻微破防（但还在装冷静）
+    "That point will be corrected.",
+    "Temporary advantage.",
+    "Do not get comfortable.",
+    "You will lose this.",
+    "I am still in control.",
+    "This changes nothing. Probably.",
+    "You are delaying the conclusion.",
+    "This is inefficient resistance.",
+    "Outcome remains unchanged.",
+    "Continue. It will end the same."
+]
+
+
+rally_comments = [
+    "Still alive.",
+    "Acceptable return.",
+    "That was almost skill.",
+    "Continuing experiment.",
+    "A temporary recovery.",
+    "Interesting correction.",
+    "You delayed the inevitable.",
+    "Momentum preserved.",
+    "That changed nothing.",
+    "The rally continues.",
+
+    "You are still here.",
+    "Survival noted.",
+    "That was reactive.",
+    "Barely controlled.",
+    "You hesitated.",
+    "This is getting interesting.",
+    "You adapted mid-flight.",
+    "The system is watching.",
+    "You are learning.",
+    "This loop persists.",
+    "Not bad.",
+    "You corrected your error.",
+    "The pattern shifts.",
+    "That was intentional, right?",
+    "You are resisting.",
+    "Continue."
 ]
 
 current_comment = "AI online."
 
 # Self-talk timer
 idle_timer = 0
-idle_interval = random.randint(900, 1500)
+idle_interval = random.randint(300, 700)
 
 # Unified comment system
 current_comment_priority = 0
 comment_until = 0
 last_comment_text = ""
+recent_comments = []
 
 category_cooldowns = {
     "idle": 0,
     "high_humor": 0,
     "ai_score": 0,
     "player_score": 0,
-    "score_gap": 0
+    "score_gap": 0,
+    "rally": 0
 }
 
 # Score-gap milestone tracker
@@ -130,7 +247,7 @@ def reset_game():
     global current_comment, current_comment_priority, comment_until, last_comment_text
     global idle_timer, idle_interval
     global ending_lines, ending_until, ending_sulk_after
-    global category_cooldowns, last_score_gap_taunt
+    global category_cooldowns, last_score_gap_taunt, recent_comments
 
     player_score = 0
     ai_score = 0
@@ -142,15 +259,17 @@ def reset_game():
     current_comment_priority = 0
     comment_until = 0
     last_comment_text = ""
+    recent_comments = []
     idle_timer = 0
-    idle_interval = random.randint(900, 1500)
+    idle_interval = random.randint(300, 700)
 
     category_cooldowns = {
         "idle": 0,
         "high_humor": 0,
         "ai_score": 0,
         "player_score": 0,
-        "score_gap": 0
+        "score_gap": 0,
+        "rally": 0
     }
     last_score_gap_taunt = 0
 
@@ -169,7 +288,7 @@ def soft_return_to_menu():
     global current_comment, current_comment_priority, comment_until, last_comment_text
     global idle_timer, idle_interval
     global ending_lines, ending_until, ending_sulk_after
-    global category_cooldowns, last_score_gap_taunt
+    global category_cooldowns, last_score_gap_taunt, recent_comments
 
     player_score = 0
     ai_score = 0
@@ -180,15 +299,17 @@ def soft_return_to_menu():
     current_comment_priority = 0
     comment_until = 0
     last_comment_text = ""
+    recent_comments = []
     idle_timer = 0
-    idle_interval = random.randint(900, 1500)
+    idle_interval = random.randint(300, 700)
 
     category_cooldowns = {
         "idle": 0,
         "high_humor": 0,
         "ai_score": 0,
         "player_score": 0,
-        "score_gap": 0
+        "score_gap": 0,
+        "rally": 0
     }
     last_score_gap_taunt = 0
 
@@ -246,11 +367,9 @@ def draw_ending_overlay(lines):
 
     if len(lines) == 1:
         draw_centered_text(200, lines[0], use_big=True)
-
     elif len(lines) == 2:
         draw_centered_text(178, lines[0], use_big=True)
         draw_centered_text(248, lines[1])
-
     elif len(lines) == 3:
         draw_centered_text(150, lines[0], use_big=True)
         draw_centered_text(225, lines[1])
@@ -284,11 +403,19 @@ def draw_game():
 
 
 def pick_line(lines):
-    global last_comment_text
-    candidates = [line for line in lines if line != last_comment_text]
+    global recent_comments
+
+    candidates = [line for line in lines if line not in recent_comments]
     if not candidates:
-        candidates = lines
-    return random.choice(candidates)
+        candidates = lines[:]
+
+    chosen = random.choice(candidates)
+
+    recent_comments.append(chosen)
+    if len(recent_comments) > 4:
+        recent_comments.pop(0)
+
+    return chosen
 
 
 def show_comment(text, priority=1, duration_ms=4500, force=False):
@@ -402,17 +529,26 @@ async def main():
         ball.y += ball_speed_y
 
         # ---------- IDLE COMMENT ----------
+        if random.random() < 0.006:
+            try_category_comment(
+                "idle",
+                glados_comments + idle_comments + rally_comments,
+                priority=2,
+                cooldown_ms=3000,
+                duration_ms=2500
+            )
+
         idle_timer += 1
         if idle_timer > idle_interval:
             try_category_comment(
                 "idle",
                 idle_comments,
                 priority=2,
-                cooldown_ms=18000,
+                cooldown_ms=7000,
                 duration_ms=4000
             )
 
-            if humor > 80 and random.random() < 0.5:
+            if random.random() < humor / 100:
                 try_category_comment(
                     "high_humor",
                     glados_comments,
@@ -422,7 +558,7 @@ async def main():
                 )
 
             idle_timer = 0
-            idle_interval = random.randint(900, 1500)
+            idle_interval = random.randint(300, 700)
 
         # ---------- WALL ----------
         if ball.top <= 0 or ball.bottom >= HEIGHT:
@@ -432,14 +568,32 @@ async def main():
         if ball.colliderect(player) and ball_speed_x < 0:
             ball_speed_x *= -1
 
+            if random.random() < 0.25:
+                try_category_comment(
+                    "rally",
+                    rally_comments,
+                    priority=3,
+                    cooldown_ms=2500,
+                    duration_ms=2500
+                )
+
         if ball.colliderect(ai) and ball_speed_x > 0:
             ball_speed_x *= -1
+
+            if random.random() < 0.20:
+                try_category_comment(
+                    "rally",
+                    rally_comments,
+                    priority=3,
+                    cooldown_ms=2500,
+                    duration_ms=2500
+                )
 
         # ---------- SCORE ----------
         if ball.left <= 0:
             ai_score += 1
 
-            if humor > 80 and random.random() < 0.35:
+            if random.random() < humor / 100:
                 show_comment(pick_line(glados_comments), priority=4, duration_ms=4500, force=True)
             else:
                 try_category_comment(
@@ -452,13 +606,13 @@ async def main():
                 )
 
             idle_timer = 0
-            idle_interval = random.randint(900, 1500)
+            idle_interval = random.randint(300, 700)
             reset_ball()
 
         if ball.right >= WIDTH:
             player_score += 1
 
-            if humor > 80 and random.random() < 0.2:
+            if random.random() < humor / 100:
                 show_comment(pick_line(glados_comments), priority=4, duration_ms=4500, force=True)
             else:
                 try_category_comment(
@@ -471,7 +625,7 @@ async def main():
                 )
 
             idle_timer = 0
-            idle_interval = random.randint(900, 1500)
+            idle_interval = random.randint(300, 700)
             reset_ball()
 
         # ---------- SCORE TAUNT ----------
@@ -512,7 +666,8 @@ async def main():
             await asyncio.sleep(0)
             continue
 
-        if player_score == 9 and ai_score == 9:
+        if player_score == 9 and ai_score == 9 and not secret_ending_triggered:
+            secret_ending_triggered = True
             trigger_ending([
                 "SYSTEM OVERRIDE",
                 "Creator Huxford has joined the chat.",
@@ -521,7 +676,8 @@ async def main():
             await asyncio.sleep(0)
             continue
 
-        if player_score == 4 and ai_score == 2:
+        if player_score == 4 and ai_score == 2 and not secret_ending_triggered:
+            secret_ending_triggered = True
             trigger_ending([
                 "42",
                 "Answer to Life, Universe, Everything"
@@ -529,7 +685,8 @@ async def main():
             await asyncio.sleep(0)
             continue
 
-        if player_score == 10 and ai_score == 0:
+        if player_score == 10 and ai_score == 0 and not secret_ending_triggered:
+            secret_ending_triggered = True
             trigger_ending([
                 "SYSTEM NOTICE",
                 "Creator Huxford will review this match."
@@ -538,7 +695,8 @@ async def main():
             continue
 
         # ---------- WIN ----------
-        if player_score >= win_score:
+        if player_score >= win_score and not secret_ending_triggered:
+            secret_ending_triggered = True
             trigger_ending([
                 "AI.EXE HAS STOPPED WORKING",
                 "Incident report sent to creator: Huxford."
@@ -546,7 +704,8 @@ async def main():
             await asyncio.sleep(0)
             continue
 
-        if ai_score >= win_score:
+        if ai_score >= win_score and not secret_ending_triggered:
+            secret_ending_triggered = True
             trigger_ending([
                 "AI HAS HUMILIATED YOU"
             ], 10000)
